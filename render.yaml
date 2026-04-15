@@ -1,0 +1,19 @@
+databases:
+  - name: support-db
+    plan: free
+    databaseName: support_monitor
+
+services:
+  - type: web
+    name: support-monitor
+    plan: free
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: support-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지원사업 모니터링</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>지원사업 모니터링</h1>
+        <div class="header-actions">
+            <button class="btn" id="refreshBtn">업데이트</button>
+            <button class="btn btn-outline" id="markAllReadBtn">전체 읽음 처리</button>
+            <span class="last-update" id="lastUpdate"></span>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 통계 카드 -->
+        <div class="stats" id="stats"></div>
+
+        <!-- 카테고리 태그 필터 -->
+        <div class="cat-tags" id="catTags"></div>
+
+        <!-- 필터바 -->
+        <div class="filters">
+            <select id="siteFilter">
+                <option value="">전체 사이트</option>
+            </select>
+            <select id="statusFilter">
+                <option value="">전체</option>
+                <option value="unread">미확인</option>
+                <option value="read">확인완료</option>
+                <option value="bookmarked">북마크</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="검색어 입력..." class="search-input">
+        </div>
+
+        <!-- 목록 -->
+        <div class="program-list" id="programList"></div>
+        <div class="pagination" id="pagination"></div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
