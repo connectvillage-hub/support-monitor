@@ -116,11 +116,37 @@ def get_programs():
         q = q.filter(SupportProgram.title.ilike(f"%{search}%"))
 
     q = q.order_by(SupportProgram.first_seen.desc())
-    total = q.count()
-    programs = q.offset((page - 1) * per_page).limit(per_page).all()
+    all_programs = q.all()
+
+    # Group duplicates by normalized title
+    import re as _re
+    def norm(t):
+        t = _re.sub(r"[\s\[\]()（）「」『』【】·\-_,./]", "", t.lower())
+        return t[:30]  # compare first 30 chars after cleanup
+
+    groups = {}
+    order = []
+    for p in all_programs:
+        key = norm(p.title)
+        if key in groups:
+            groups[key]["dupes"].append({"source_site": p.source_site, "source_url": p.source_url, "id": p.id})
+        else:
+            groups[key] = {"main": p, "dupes": []}
+            order.append(key)
+
+    total = len(order)
+    start = (page - 1) * per_page
+    page_keys = order[start:start + per_page]
+
+    result = []
+    for key in page_keys:
+        g = groups[key]
+        d = g["main"].to_dict()
+        d["duplicates"] = g["dupes"]
+        result.append(d)
 
     return jsonify({
-        "programs": [p.to_dict() for p in programs],
+        "programs": result,
         "total": total, "page": page, "per_page": per_page,
         "total_pages": (total + per_page - 1) // per_page,
     })

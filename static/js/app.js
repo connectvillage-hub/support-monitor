@@ -157,6 +157,13 @@ function renderList(data) {
             return `<span class="cat-badge ${cls}">${c.trim()}</span>`;
         }).join('');
 
+        // Duplicate badge
+        const dupes = p.duplicates || [];
+        const dupeHtml = dupes.length > 0 ? `<button class="dupe-btn" data-id="${p.id}">+${dupes.length}</button>` : '';
+        const dupeListHtml = dupes.length > 0 ? `<div class="dupe-list hidden" id="dupes-${p.id}">${dupes.map(d =>
+            `<a href="${d.source_url}" target="_blank" class="dupe-item"><span class="badge">${d.source_site}</span></a>`
+        ).join('')}</div>` : '';
+
         return `
         <div class="card${dismissedCls}" data-id="${p.id}">
             <div class="card-ox">
@@ -167,6 +174,7 @@ function renderList(data) {
                 <div class="card-top">
                     <div class="card-top-left">
                         <span class="badge">${p.source_site}</span>
+                        ${dupeHtml}
                         ${stHtml}
                         ${catHtml}
                     </div>
@@ -176,6 +184,7 @@ function renderList(data) {
                     </div>
                 </div>
                 <a class="card-title" href="${p.source_url}" target="_blank" rel="noopener">${p.title}</a>
+                ${dupeListHtml}
                 <div class="card-meta">
                     ${p.organization ? `<span>${p.organization}</span>` : ''}
                     ${p.deadline ? `<span>마감: ${p.deadline}</span>` : ''}
@@ -183,6 +192,15 @@ function renderList(data) {
             </div>
         </div>`;
     }).join('');
+
+    // Dupe toggle
+    $list.querySelectorAll('.dupe-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const el = document.getElementById(`dupes-${btn.dataset.id}`);
+            if (el) el.classList.toggle('hidden');
+        });
+    });
 
     // O button = bookmark + keep visible
     $list.querySelectorAll('.o-btn').forEach(btn => {
