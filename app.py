@@ -185,14 +185,41 @@ def get_logs():
     } for l in logs]})
 
 
+scrape_status = {"running": False, "done_count": 0, "total_count": 14, "new_items": 0, "failed": 0}
+
+
 @app.route("/api/scrape/run", methods=["POST"])
 def trigger_scrape():
-    from scrapers import run_all_scrapers
+    if scrape_status["running"]:
+        return jsonify({"ok": False, "message": "이미 수집 중입니다."})
+
+    from scrapers import ALL_SCRAPERS
+
+    scrape_status["running"] = True
+    scrape_status["done_count"] = 0
+    scrape_status["total_count"] = len(ALL_SCRAPERS)
+    scrape_status["new_items"] = 0
+    scrape_status["failed"] = 0
+
     def do_scrape():
         with app.app_context():
-            run_all_scrapers()
+            for scraper_cls in ALL_SCRAPERS:
+                scraper = scraper_cls()
+                log = scraper.scrape()
+                scrape_status["done_count"] += 1
+                if log.success:
+                    scrape_status["new_items"] += log.new_items
+                else:
+                    scrape_status["failed"] += 1
+            scrape_status["running"] = False
+
     threading.Thread(target=do_scrape, daemon=True).start()
-    return jsonify({"ok": True, "message": "스크래핑이 시작되었습니다."})
+    return jsonify({"ok": True, "message": "수집을 시작합니다."})
+
+
+@app.route("/api/scrape/status")
+def scrape_progress():
+    return jsonify(scrape_status)
 
 
 with app.app_context():

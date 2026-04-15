@@ -18,14 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('refreshBtn').addEventListener('click', async () => {
         const btn = document.getElementById('refreshBtn');
         btn.disabled = true;
-        btn.textContent = '스크래핑 중...';
         try {
-            await api('/api/scrape/run', { method: 'POST' });
-            btn.textContent = '실행됨 (30초 후 새로고침)';
-            setTimeout(() => { btn.disabled = false; btn.textContent = '업데이트'; refresh(); }, 30000);
+            const res = await api('/api/scrape/run', { method: 'POST' });
+            if (res.ok === false) { alert(res.message); btn.disabled = false; return; }
+            showScrapePopup();
+            pollScrapeStatus(btn);
         } catch (e) {
             alert('스크래핑 실행 실패: ' + e.message);
-            btn.disabled = false; btn.textContent = '업데이트';
+            btn.disabled = false;
         }
     });
 
@@ -239,4 +239,64 @@ function renderLastUpdate(logs) {
         const d = new Date(items[0].scraped_at);
         $el.textContent = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
+}
+
+/* ── 스크래핑 팝업 ── */
+
+function showScrapePopup() {
+    let overlay = document.getElementById('scrapeOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'scrapeOverlay';
+        overlay.innerHTML = `
+            <div class="scrape-popup">
+                <div class="scrape-spinner"></div>
+                <div class="scrape-title" id="scrapeTitle">공고 수집 중...</div>
+                <div class="scrape-progress" id="scrapeProgress">0 / 14 사이트</div>
+                <div class="scrape-bar-wrap"><div class="scrape-bar" id="scrapeBar"></div></div>
+                <div class="scrape-detail" id="scrapeDetail"></div>
+            </div>`;
+        document.body.appendChild(overlay);
+    }
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+}
+
+function updateScrapePopup(status) {
+    const pct = Math.round((status.done_count / status.total_count) * 100);
+    document.getElementById('scrapeProgress').textContent = `${status.done_count} / ${status.total_count} 사이트`;
+    document.getElementById('scrapeBar').style.width = pct + '%';
+    document.getElementById('scrapeDetail').textContent = `신규 ${status.new_items}건${status.failed ? ', 실패 ' + status.failed + '건' : ''}`;
+}
+
+function showScrapeDone(status) {
+    document.getElementById('scrapeTitle').textContent = '수집 완료!';
+    document.getElementById('scrapeProgress').textContent = `${status.total_count}개 사이트 수집 완료`;
+    document.getElementById('scrapeDetail').textContent = `신규 ${status.new_items}건 추가됨`;
+    document.getElementById('scrapeBar').style.width = '100%';
+    const spinner = document.querySelector('.scrape-spinner');
+    if (spinner) spinner.style.display = 'none';
+
+    setTimeout(() => {
+        const overlay = document.getElementById('scrapeOverlay');
+        if (overlay) overlay.style.display = 'none';
+        refresh();
+    }, 2500);
+}
+
+function pollScrapeStatus(btn) {
+    const poll = setInterval(async () => {
+        try {
+            const status = await api('/api/scrape/status');
+            updateScrapePopup(status);
+            if (!status.running) {
+                clearInterval(poll);
+                showScrapeDone(status);
+                btn.disabled = false;
+            }
+        } catch (e) {
+            clearInterval(poll);
+            btn.disabled = false;
+        }
+    }, 2000);
 }
