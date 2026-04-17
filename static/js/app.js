@@ -193,6 +193,7 @@ function renderList(data) {
                         ${dupeHtml}
                         ${stHtml}
                         ${catHtml}
+                        ${getDdayHtml(p.deadline)}
                     </div>
                     <div class="card-right">
                         <button class="icon-btn bookmark-btn${bmCls}" data-id="${p.id}" title="북마크">${p.is_bookmarked ? '\u2605' : '\u2606'}</button>
@@ -204,7 +205,6 @@ function renderList(data) {
                 <div class="card-meta">
                     ${p.organization ? `<span>${p.organization}</span>` : ''}
                     ${p.deadline ? `<span>마감: ${p.deadline}</span>` : ''}
-                    ${getDdayHtml(p.deadline)}
                 </div>
             </div>
         </div>`;
