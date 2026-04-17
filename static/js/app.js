@@ -9,6 +9,22 @@ const CAT_COLORS = {
     '기타': 'c-etc',
 };
 
+function getDdayHtml(deadline) {
+    if (!deadline) return '';
+    // "~" 이후가 실제 마감일
+    const dlText = deadline.includes('~') ? deadline.split('~').pop().trim() : deadline.trim();
+    const m = dlText.match(/(\d{4})\s*[\.\-/]\s*(\d{1,2})\s*[\.\-/]\s*(\d{1,2})/);
+    if (!m) return '';
+    const dlDate = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]), 23, 59);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.ceil((dlDate - today) / (1000*60*60*24));
+    if (diff < 0) return '<span class="dday expired">마감</span>';
+    if (diff === 0) return '<span class="dday urgent">D-Day</span>';
+    if (diff <= 3) return `<span class="dday urgent">D-${diff}</span>`;
+    if (diff <= 7) return `<span class="dday soon">D-${diff}</span>`;
+    return `<span class="dday normal">D-${diff}</span>`;
+}
+
 async function api(url, opts) {
     const res = await fetch(url, { headers: {'Content-Type': 'application/json'}, ...opts });
     if (!res.ok) throw new Error(`${res.status}`);
@@ -188,6 +204,7 @@ function renderList(data) {
                 <div class="card-meta">
                     ${p.organization ? `<span>${p.organization}</span>` : ''}
                     ${p.deadline ? `<span>마감: ${p.deadline}</span>` : ''}
+                    ${getDdayHtml(p.deadline)}
                 </div>
             </div>
         </div>`;

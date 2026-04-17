@@ -212,6 +212,16 @@ body {
 .dupe-item .badge { background: #fff3e0; color: #e65100; cursor: pointer; }
 .dupe-item .badge:hover { background: #ffe0b2; }
 
+/* ── D-Day ── */
+.dday {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.dday.urgent { background: #e53935; color: #fff; }
+.dday.soon { background: #ff9800; color: #fff; }
+.dday.normal { background: #e3f2fd; color: #1565C0; }
+.dday.expired { background: #eee; color: #999; text-decoration: line-through; }
+
 .empty { text-align: center; padding: 40px; color: #999; font-size: 14px; }
 .loading { text-align: center; padding: 40px; color: #666; font-size: 14px; }
 
