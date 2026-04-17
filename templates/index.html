@@ -16,30 +16,30 @@
         </div>
     </header>
 
-    <main class="container">
-        <!-- 통계 카드 -->
-        <div class="stats" id="stats"></div>
-
-        <!-- 카테고리 태그 필터 -->
-        <div class="cat-tags" id="catTags"></div>
-
-        <!-- 필터바 -->
-        <div class="filters">
-            <select id="siteFilter">
-                <option value="">전체 사이트</option>
-            </select>
-            <select id="statusFilter">
-                <option value="">전체</option>
-                <option value="unread">미확인</option>
-                <option value="read">확인완료</option>
-                <option value="bookmarked">북마크</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="검색어 입력..." class="search-input">
+    <div class="toolbar">
+        <div class="toolbar-inner">
+            <div class="stats" id="stats"></div>
+            <div class="cat-tags" id="catTags"></div>
+            <div class="filters">
+                <select id="siteFilter">
+                    <option value="">전체 사이트</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">전체</option>
+                    <option value="unread">미확인</option>
+                    <option value="read">확인완료</option>
+                    <option value="bookmarked">북마크</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="검색어 입력..." class="search-input">
+            </div>
         </div>
+    </div>
 
-        <!-- 목록 -->
-        <div class="program-list" id="programList"></div>
-        <div class="pagination" id="pagination"></div>
+    <main class="scroll-area">
+        <div class="scroll-inner">
+            <div class="program-list" id="programList"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
     </main>
 
     <script src="/static/js/app.js"></script>
