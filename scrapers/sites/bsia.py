@@ -5,6 +5,10 @@ class BsiaScraper(BaseScraper):
     site_name = "부산기술창업투자원"
     list_url = "https://www.bsia.or.kr/api/announcements?pno=1&mcode=news02"
     use_api = True
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.bsia.or.kr/api/announcements?pno={page_num}&mcode=news02"
 
     def fetch_html(self):
         return self.fetch_json()

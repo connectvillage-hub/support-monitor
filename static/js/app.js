@@ -5,7 +5,8 @@ let activeCat = '';
 const CAT_COLORS = {
     'R&D': 'c-rd', '사업화': 'c-biz', '투자연계': 'c-invest',
     '입주지원': 'c-space', 'IR피칭': 'c-ir', '경진대회': 'c-contest',
-    '교육멘토링': 'c-edu', '인력지원': 'c-hr', '기타': 'c-etc',
+    '교육멘토링': 'c-edu', '인력지원': 'c-hr', '창업지원': 'c-startup',
+    '기타': 'c-etc',
 };
 
 async function api(url, opts) {
@@ -101,12 +102,11 @@ function renderStats(stats) {
 function renderCatTags(stats) {
     const $el = document.getElementById('catTags');
     const cats = stats.by_category || {};
-    const order = ['R&D','사업화','투자연계','입주지원','IR피칭','경진대회','교육멘토링','인력지원','기타'];
+    const order = ['R&D','사업화','투자연계','입주지원','IR피칭','경진대회','교육멘토링','인력지원','창업지원','기타'];
 
     let html = `<span class="cat-tag ${activeCat===''?'active':''}" data-cat="">전체</span>`;
     for (const cat of order) {
         if (cats[cat]) {
-            const cls = CAT_COLORS[cat] || 'c-etc';
             html += `<span class="cat-tag ${activeCat===cat?'active':''}" data-cat="${cat}">${cat}<span class="tag-count">${cats[cat]}</span></span>`;
         }
     }

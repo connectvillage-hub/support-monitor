@@ -6,6 +6,10 @@ class BepaScraper(BaseScraper):
     site_name = "부산경제진흥원"
     list_url = "https://www.bepa.kr/kor/view.do?no=1502"
     verify_ssl = False
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.bepa.kr/kor/view.do?no=1502&pageIndex={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")
@@ -33,6 +37,10 @@ class BepaScraper(BaseScraper):
 class BkicScraper(BaseScraper):
     site_name = "부산지식산업센터"
     list_url = "http://bkic.bepa.kr/bsknow/view.do?no=1477"
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"http://bkic.bepa.kr/bsknow/view.do?no=1477&pageIndex={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")

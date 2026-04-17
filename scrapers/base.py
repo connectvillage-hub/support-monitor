@@ -16,15 +16,11 @@ def is_current_period(title, deadline="", snippet=""):
     cur_year = now.year
     text = f"{title} {deadline} {snippet}"
 
-    # 제목에 과거 연도(2020~작년)가 명시되어 있고, 올해가 없으면 제외
     for y in range(2020, cur_year):
         if re.search(rf"{y}[년\s.\-]", text) and not re.search(rf"{cur_year}[년\s.\-]", text):
             return False
 
-    # 마감일이 이미 지난 공고 제외
     if deadline:
-        # 다양한 날짜 포맷에서 마감일 추출: 2026-04-10, 2026.04.10, 2026. 04. 10 등
-        # "~" 이후 날짜가 실제 마감일
         dl_text = deadline.split("~")[-1].strip() if "~" in deadline else deadline.strip()
         m = re.search(r"(\d{4})\s*[\.\-/]\s*(\d{1,2})\s*[\.\-/]\s*(\d{1,2})", dl_text)
         if m:
@@ -42,6 +38,7 @@ class BaseScraper:
     site_name = ""
     list_url = ""
     verify_ssl = True
+    max_pages = 10  # 최대 탐색 페이지 수
 
     def fetch_html(self, url=None):
         url = url or self.list_url
@@ -59,6 +56,10 @@ class BaseScraper:
     def parse_programs(self, data):
         raise NotImplementedError
 
+    def get_page_url(self, page_num):
+        """Override in subclass to support pagination."""
+        return None
+
     def compute_hash(self, source_url):
         raw = f"{self.site_name}|{source_url}"
         return hashlib.sha256(raw.encode()).hexdigest()
@@ -68,13 +69,36 @@ class BaseScraper:
 
         log = ScrapeLog(source_site=self.site_name, scraped_at=datetime.now())
         try:
+            all_programs = []
+
+            # Page 1
             data = self.fetch_html() if not hasattr(self, "use_api") else self.fetch_json()
-            programs = self.parse_programs(data)
-            log.items_found = len(programs)
+            page1 = self.parse_programs(data)
+            all_programs.extend(page1)
+
+            # Pages 2~max_pages
+            for pg in range(2, self.max_pages + 1):
+                page_url = self.get_page_url(pg)
+                if not page_url:
+                    break
+                try:
+                    time.sleep(1)
+                    data = self.fetch_html(page_url) if not hasattr(self, "use_api") else self.fetch_json(page_url)
+                    items = self.parse_programs(data)
+                    if not items:
+                        break
+                    # Stop if all items on this page are expired
+                    valid = [p for p in items if is_current_period(p.get("title",""), p.get("deadline",""), p.get("content_snippet",""))]
+                    all_programs.extend(items)
+                    if len(valid) == 0:
+                        break
+                except Exception:
+                    break
+
+            log.items_found = len(all_programs)
 
             new_count = 0
-            for p in programs:
-                # 과거 연도 공고 필터링
+            for p in all_programs:
                 if not is_current_period(p.get("title",""), p.get("deadline",""), p.get("content_snippet","")):
                     continue
 

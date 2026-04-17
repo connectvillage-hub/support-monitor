@@ -5,6 +5,10 @@ from scrapers.base import BaseScraper
 class DcbScraper(BaseScraper):
     site_name = "부산디자인진흥원"
     list_url = "https://dcb.or.kr/01_news/?mcode=0401010000"
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://dcb.or.kr/01_news/?mcode=0401010000&mode=1&page={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")

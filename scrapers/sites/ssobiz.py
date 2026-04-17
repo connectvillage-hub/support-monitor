@@ -5,6 +5,11 @@ from scrapers.base import BaseScraper
 class SsobizScraper(BaseScraper):
     site_name = "소상공인연합회"
     list_url = "https://www.kfme.or.kr/kr/board/notice.php?cate=1"
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        offset = (page_num - 1) * 10
+        return f"https://www.kfme.or.kr/kr/board/notice.php?cate=1&startPage={offset}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")
@@ -17,7 +22,6 @@ class SsobizScraper(BaseScraper):
             if not title_el:
                 continue
             title = title_el.get_text(strip=True)
-            # Remove "공지사항" prefix from pinned rows
             title = title.replace("공지사항", "").strip()
             if not title:
                 continue
@@ -28,10 +32,5 @@ class SsobizScraper(BaseScraper):
             else:
                 source_url = href or self.list_url
             date_el = row.select_one("div[data-label='등록일']")
-            results.append({
-                "title": title, "source_url": source_url,
-                "organization": "소상공인연합회", "deadline": "",
-                "status": "", "category": "",
-                "content_snippet": date_el.get_text(strip=True) if date_el else "",
-            })
+            results.append({"title": title, "source_url": source_url, "organization": "소상공인연합회", "deadline": "", "status": "", "category": "", "content_snippet": date_el.get_text(strip=True) if date_el else ""})
         return results

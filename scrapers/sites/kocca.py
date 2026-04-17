@@ -5,6 +5,10 @@ from scrapers.base import BaseScraper
 class KoccaScraper(BaseScraper):
     site_name = "한국콘텐츠진흥원"
     list_url = "https://www.kocca.kr/kocca/pims/list.do?menuNo=20410&recptSt="
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.kocca.kr/kocca/pims/list.do?menuNo=20410&recptSt=&pageIndex={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")

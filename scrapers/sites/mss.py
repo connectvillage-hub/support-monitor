@@ -7,6 +7,10 @@ class MssScraper(BaseScraper):
     site_name = "중소벤처기업부"
     list_url = "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310"
     verify_ssl = False
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310&pageIndex={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")
@@ -32,10 +36,5 @@ class MssScraper(BaseScraper):
                 m = re.search(r"(\d{5,})", onclick)
                 source_url = f"https://www.mss.go.kr/site/smba/ex/bbs/View.do?cbIdx=310&bcIdx={m.group(1)}" if m else self.list_url
             dept_el = tr.select_one("div.tableInfoBox dd")
-            results.append({
-                "title": title, "source_url": source_url,
-                "organization": dept_el.get_text(strip=True) if dept_el else "중소벤처기업부",
-                "deadline": "", "status": "", "category": "",
-                "content_snippet": "",
-            })
+            results.append({"title": title, "source_url": source_url, "organization": dept_el.get_text(strip=True) if dept_el else "중소벤처기업부", "deadline": "", "status": "", "category": "", "content_snippet": ""})
         return results

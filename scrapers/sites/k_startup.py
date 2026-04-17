@@ -6,6 +6,10 @@ from scrapers.base import BaseScraper
 class KStartupScraper(BaseScraper):
     site_name = "K스타트업"
     list_url = "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do"
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?page={page_num}"
 
     def parse_programs(self, html):
         soup = BeautifulSoup(html, "html.parser")

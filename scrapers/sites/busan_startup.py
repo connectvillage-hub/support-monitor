@@ -5,6 +5,10 @@ class BusanStartupScraper(BaseScraper):
     site_name = "부산창업포털"
     list_url = "https://www.busanstartup.kr/_Api/bizListData?deadline=N&mcode=biz02&pageNo=1"
     use_api = True
+    max_pages = 5
+
+    def get_page_url(self, page_num):
+        return f"https://www.busanstartup.kr/_Api/bizListData?deadline=N&mcode=biz02&pageNo={page_num}"
 
     def fetch_html(self):
         return self.fetch_json()
