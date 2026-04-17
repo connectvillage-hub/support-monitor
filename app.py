@@ -261,6 +261,11 @@ def scrape_progress():
 
 with app.app_context():
     db.create_all()
+    # 종료/마감 상태 공고 자동 정리
+    deleted = SupportProgram.query.filter(SupportProgram.status.in_(["종료", "마감", "접수마감", "사업종료"])).delete()
+    if deleted:
+        db.session.commit()
+        print(f"종료된 공고 {deleted}건 정리")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

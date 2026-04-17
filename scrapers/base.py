@@ -101,6 +101,10 @@ class BaseScraper:
             for p in all_programs:
                 if not is_current_period(p.get("title",""), p.get("deadline",""), p.get("content_snippet","")):
                     continue
+                # 종료/마감 상태인 공고 제외
+                st = p.get("status", "").strip()
+                if st in ("종료", "마감", "접수마감", "사업종료"):
+                    continue
 
                 h = self.compute_hash(p["source_url"])
                 if not SupportProgram.query.filter_by(hash_key=h).first():
